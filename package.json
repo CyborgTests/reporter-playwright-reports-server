@@ -1,0 +1,24 @@
+{
+  "name": "reporter-playwright-reports-server",
+  "version": "2.0.2",
+  "description": "Asserts your responses using Swagger/OpenApi docs. Useful for API testing.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Oleksandr Khotemskyi <xotabu4@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "@playwright/test": "^1.10.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.10.0",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "20.14.11",
+    "typescript": "5.5.x"
+  }
+}
