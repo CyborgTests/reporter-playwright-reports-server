@@ -1,5 +1,4 @@
 import fs from "fs/promises";
-
 import path from "path";
 import { request } from "@playwright/test";
 import type {
@@ -9,58 +8,143 @@ import type {
   Suite,
 } from "@playwright/test/reporter";
 
-class PwReportsServerReporter implements Reporter {
-  config: FullConfig | undefined;
-  onBegin(config: FullConfig, suite: Suite) {
-    this.config = config;
+// reporter: [
+//   ['list'],
+//   ['reporter-playwright-reports-server', {
+//       url: 'http://localhost:3000/'
+//       resultDetails: {
+//       },
+//       triggerReportGeneration: true
+//   }]
+// ]
+
+type ReporterOptions = {
+  url: string;
+  token?: string;
+  resultDetails?: {
+    [key: string]: string;
+  };
+  triggerReportGeneration?: boolean;
+  dryRun?: boolean;
+};
+
+const DEFAULT_OPTIONS: Omit<ReporterOptions, "url"> = {
+  resultDetails: {},
+  triggerReportGeneration: true,
+  dryRun: false,
+};
+
+class ReporterPlaywrightReportsServer implements Reporter {
+  rpOptions: ReporterOptions;
+  pwConfig: FullConfig | undefined;
+  blobPath: string | undefined;
+  blobName: string | undefined;
+
+  constructor(options: ReporterOptions) {
+    if (options.url === undefined) {
+      throw new Error(
+        "[ReporterPlaywrightReportsServer] url is required, cannot run without it"
+      );
+    }
+    this.rpOptions = { ...DEFAULT_OPTIONS, ...options };
+    console.debug(
+      `[ReporterPlaywrightReportsServer] running with ${JSON.stringify(
+        options,
+        null,
+        2
+      )}`
+    );
   }
 
-  async onEnd(result: FullResult) {
-    const blobReporterConfig = this.config?.reporter.find(
+  onBegin(config: FullConfig, suite: Suite) {
+    this.pwConfig = config;
+    const blobReporterConfig = this.pwConfig?.reporter.find(
       (r) => r[0] === "blob"
     );
     if (blobReporterConfig === undefined) {
-      console.error(
-        "Blob reporter config not found, blob reporter is required for this reporter to work. Results will not be uploaded."
+      throw new Error(
+        "[ReporterPlaywrightReportsServer] Blob reporter config not found. Results cannot be uploaded"
       );
-      return;
     }
-    const testResults = blobReporterConfig[1];
-    const testResultPath = path.join(
+    config.shard?.current;
+    const { fileName, outputDir } = blobReporterConfig[1] ?? {};
+    this.blobName = fileName ?? `report.zip`;
+    this.blobPath = path.join(
       process.cwd(),
-      testResults.outputDir,
-      testResults.fileName
+      outputDir ?? "blob-report",
+      this.blobName as string
     );
-    const buffer = await fs.readFile(testResultPath);
-    const ctx = await request.newContext();
-    const resp = await ctx.put("http://localhost:3000/api/result/upload", {
-      multipart: {
-        file: {
-          name: testResults.fileName,
-          mimeType: "application/zip",
-          buffer: buffer,
-        },
-        testRunName: "regression-run-v1.11",
-        reporter: "okhotemskyi",
-      },
+  }
+
+  async onEnd(result: FullResult) {
+    if (this.blobPath === undefined) {
+      throw new Error(
+        "[ReporterPlaywrightReportsServer] Blob file path is absent. Results cannot be uploaded"
+      );
+    }
+    let buffer: Buffer;
+    try {
+      buffer = await fs.readFile(this.blobPath);
+    } catch (err) {
+      throw new Error(
+        "[ReporterPlaywrightReportsServer] Blob file not found or cannot be loaded. Results cannot be uploaded",
+        { cause: err }
+      );
+    }
+
+    const ctx = await request.newContext({
+      extraHTTPHeaders:
+        this.rpOptions.token !== undefined
+          ? {
+              Authorization: this.rpOptions.token,
+            }
+          : {},
     });
 
-    const { data } = await resp.json();
+    const resultDetails =
+      this.rpOptions.resultDetails === undefined
+        ? {}
+        : this.rpOptions.resultDetails;
+    // TODO: Handle trailing slash in url
+    let resultData: any;
+    if (this.rpOptions.dryRun === false) {
+      const resp = await ctx.put(`${this.rpOptions.url}/api/result/upload`, {
+        multipart: {
+          file: {
+            name: this.blobName ?? "blob.zip",
+            mimeType: "application/zip",
+            buffer: buffer,
+          },
+          ...resultDetails,
+        },
+      });
+      resultData = (await resp.json()).data;
+    } else {
+      resultData = { resultID: "123" };
+      console.debug("[ReporterPlaywrightReportsServer] result uploaded: ", resultData);
+    }
 
-    console.log("[PW_reports_server] result uploaded: ", data);
+    if (this.rpOptions.triggerReportGeneration === true) {
+      let report;
+      if (this.rpOptions.dryRun === false) {
+        report = await (
+          await ctx.post(`${this.rpOptions.url}/api/report/generate`, {
+            data: {
+              resultsIds: [resultData.resultID],
+            },
+          })
+        ).json();
+      } else {
+        report = {
+          reportUrl: "/data/report/123/index.html",
+        };
+      }
 
-    // const report = await (
-    //   await ctx.post("http://localhost:3000/api/report/generate", {
-    //     data: {
-    //       resultsIds: [data.resultID],
-    //     },
-    //   })
-    // ).json();
-
-    // console.log(
-    //   `[PW_reports_server] 🎭 HTML Report is available at: http://localhost:3000${report.reportUrl}`
-    // );
+      console.log(
+        `[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${this.rpOptions.url}${report.reportUrl}`
+      );
+    }
   }
 }
 
-export default PwReportsServerReporter;
+export default ReporterPlaywrightReportsServer;
