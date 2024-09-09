@@ -104,23 +104,24 @@ class ReporterPlaywrightReportsServer implements Reporter {
         : this.rpOptions.resultDetails;
     // TODO: Handle trailing slash in url
     let resultData: any;
+    const url = this.rpOptions.url.endsWith("/") ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     if (this.rpOptions.dryRun === false) {
-      const resp = await ctx.put(`${this.rpOptions.url}/api/result/upload`, {
-        multipart: {
-          file: {
-            name: this.blobName ?? "blob.zip",
-            mimeType: "application/zip",
-            buffer: buffer,
-          },
-          ...resultDetails,
+      const resp = await ctx.put(`${url}/api/result/upload`, {
+      multipart: {
+        file: {
+        name: this.blobName ?? "blob.zip",
+        mimeType: "application/zip",
+        buffer: buffer,
         },
+        ...resultDetails,
+      },
       });
       resultData = (await resp.json()).data;
     } else {
       resultData = { resultID: "123" };
       console.debug(
-        "[ReporterPlaywrightReportsServer] result uploaded: ",
-        resultData
+      "[ReporterPlaywrightReportsServer] result uploaded: ",
+      resultData
       );
     }
 
