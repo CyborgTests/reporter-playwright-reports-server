@@ -15,7 +15,11 @@
   "author": "Oleksandr Khotemskyi <xotabu4@gmail.com>",
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "readme.md",
+    "LICENSE",
+    "package.json",
+    "package-lock.json"
   ],
   "peerDependencies": {
     "@playwright/test": "^1.10.0"
@@ -23,8 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^9.10.0",
     "@playwright/test": "^1.46.0",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "20.14.11",
+    "@types/node": "^20.14.11",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
     "prettier": "^3.3.3",
