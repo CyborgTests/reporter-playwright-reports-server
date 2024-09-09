@@ -102,7 +102,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       this.rpOptions.resultDetails === undefined
         ? {}
         : this.rpOptions.resultDetails;
-    // TODO: Handle trailing slash in url
+
     let resultData: any;
     const url = this.rpOptions.url.endsWith("/") ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     if (this.rpOptions.dryRun === false) {
