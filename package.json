@@ -1,6 +1,6 @@
 {
   "name": "reporter-playwright-reports-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
