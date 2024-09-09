@@ -8,11 +8,12 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ["list"],
-    ["blob"],
+    ["blob", { outputFile: "test-results/results.zip" }],
     [
       "./index.ts",
       {
         url: "https://familiar-alyss-alex-hot-6926ec9c.koyeb.app",
+        reportPath: "test-results/results.zip",
         // url: 'http://localhost:3000',
         resultDetails: {
           key1: "1",

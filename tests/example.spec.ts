@@ -18,6 +18,7 @@ test("onEnd should throw if no blobPath defined", async ({}) => {
   const reporter = new ReporterPlaywrightReportsServer({
     dryRun: true,
     url: "test",
+    reportPath: "test",
   } as any);
 
   let noError = false;
