@@ -4,6 +4,7 @@ import ReporterPlaywrightReportsServer from '..';
 test('url should be required', async ({}) => {
   let noError = false;
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new ReporterPlaywrightReportsServer({} as any);
     noError = true;
   } catch (err) {
