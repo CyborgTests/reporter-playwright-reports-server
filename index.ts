@@ -42,13 +42,13 @@ class ReporterPlaywrightReportsServer implements Reporter {
   blobName: string | undefined;
 
   constructor(options: ReporterOptions) {
-    if (options.url === undefined) {
+    if (!options.url) {
       throw new Error(
         "[ReporterPlaywrightReportsServer] url is required, cannot run without it"
       );
     }
 
-    if (options.reportPath === undefined) {
+    if (!options.reportPath) {
       throw new Error(
         "[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it"
       );
