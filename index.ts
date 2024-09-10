@@ -20,6 +20,7 @@ import type {
 
 type ReporterOptions = {
   url: string;
+  reportPath: string;
   token?: string;
   resultDetails?: {
     [key: string]: string;
@@ -28,7 +29,7 @@ type ReporterOptions = {
   dryRun?: boolean;
 };
 
-const DEFAULT_OPTIONS: Omit<ReporterOptions, "url"> = {
+const DEFAULT_OPTIONS: Omit<ReporterOptions, "url" | "reportPath"> = {
   resultDetails: {},
   triggerReportGeneration: true,
   dryRun: false,
@@ -41,11 +42,18 @@ class ReporterPlaywrightReportsServer implements Reporter {
   blobName: string | undefined;
 
   constructor(options: ReporterOptions) {
-    if (options.url === undefined) {
+    if (!options.url) {
       throw new Error(
         "[ReporterPlaywrightReportsServer] url is required, cannot run without it"
       );
     }
+
+    if (!options.reportPath) {
+      throw new Error(
+        "[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it"
+      );
+    }
+
     this.rpOptions = { ...DEFAULT_OPTIONS, ...options };
     console.debug(
       `[ReporterPlaywrightReportsServer] running with ${JSON.stringify(
@@ -57,22 +65,11 @@ class ReporterPlaywrightReportsServer implements Reporter {
   }
 
   onBegin(config: FullConfig, suite: Suite) {
-    this.pwConfig = config;
-    const blobReporterConfig = this.pwConfig?.reporter.find(
-      (r) => r[0] === "blob"
-    );
-    if (blobReporterConfig === undefined) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] Blob reporter config not found. Results cannot be uploaded"
-      );
-    }
-    config.shard?.current;
-    const { fileName, outputDir } = blobReporterConfig[1] ?? {};
-    this.blobName = fileName ?? `report.zip`;
-    this.blobPath = path.join(
-      process.cwd(),
-      outputDir ?? "blob-report",
-      this.blobName as string
+    this.blobPath = path.join(process.cwd(), this.rpOptions.reportPath);
+    this.blobName = path.basename(this.blobPath);
+
+    console.debug(
+      `[ReporterPlaywrightReportsServer] blob file path: ${this.blobPath}`
     );
   }
 
@@ -105,23 +102,27 @@ class ReporterPlaywrightReportsServer implements Reporter {
       this.rpOptions.resultDetails === undefined
         ? {}
         : this.rpOptions.resultDetails;
-    // TODO: Handle trailing slash in url
+
     let resultData: any;
+    const url = this.rpOptions.url.endsWith("/") ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     if (this.rpOptions.dryRun === false) {
-      const resp = await ctx.put(`${this.rpOptions.url}/api/result/upload`, {
-        multipart: {
-          file: {
-            name: this.blobName ?? "blob.zip",
-            mimeType: "application/zip",
-            buffer: buffer,
-          },
-          ...resultDetails,
+      const resp = await ctx.put(`${url}/api/result/upload`, {
+      multipart: {
+        file: {
+        name: this.blobName ?? "blob.zip",
+        mimeType: "application/zip",
+        buffer: buffer,
         },
+        ...resultDetails,
+      },
       });
       resultData = (await resp.json()).data;
     } else {
       resultData = { resultID: "123" };
-      console.debug("[ReporterPlaywrightReportsServer] result uploaded: ", resultData);
+      console.debug(
+      "[ReporterPlaywrightReportsServer] result uploaded: ",
+      resultData
+      );
     }
 
     if (this.rpOptions.triggerReportGeneration === true) {
