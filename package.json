@@ -1,25 +1,45 @@
 {
-  "name": "reporter-playwright-reports-server",
-  "version": "1.0.1",
+  "name": "@cyborgtests/reporter-playwright-reports-server",
+  "version": "1.0.2",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "playwright test"
+    "test": "playwright test",
+    "format:check": "prettier --ignore-path .gitignore --list-different '**/**/*.{ts,json,md}'",
+    "lint:check": "eslint",
+    "format:fix": "npm run format:check -- --write",
+    "format:all": "npm run format:fix && npm run lint:fix"
   },
   "author": "Oleksandr Khotemskyi <xotabu4@gmail.com>",
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "readme.md",
+    "LICENSE",
+    "package.json",
+    "package-lock.json"
   ],
   "peerDependencies": {
     "@playwright/test": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.10.0",
     "@playwright/test": "^1.46.0",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "20.14.11",
-    "typescript": "5.5.x"
-  }
+    "@types/node": "^20.14.11",
+    "eslint": "^9.10.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "typescript": "5.5.x",
+    "typescript-eslint": "^8.4.0"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [
+    "playwright",
+    "reporter",
+    "playwright-reports-server"
+  ]
 }

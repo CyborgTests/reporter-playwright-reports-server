@@ -1,12 +1,7 @@
-import fs from "fs/promises";
-import path from "path";
-import { request } from "@playwright/test";
-import type {
-  FullConfig,
-  FullResult,
-  Reporter,
-  Suite,
-} from "@playwright/test/reporter";
+import fs from 'fs/promises';
+import path from 'path';
+import { request } from '@playwright/test';
+import type { FullConfig, FullResult, Reporter, Suite } from '@playwright/test/reporter';
 
 // reporter: [
 //   ['list'],
@@ -29,7 +24,7 @@ type ReporterOptions = {
   dryRun?: boolean;
 };
 
-const DEFAULT_OPTIONS: Omit<ReporterOptions, "url" | "reportPath"> = {
+const DEFAULT_OPTIONS: Omit<ReporterOptions, 'url' | 'reportPath'> = {
   resultDetails: {},
   triggerReportGeneration: true,
   dryRun: false,
@@ -43,49 +38,35 @@ class ReporterPlaywrightReportsServer implements Reporter {
 
   constructor(options: ReporterOptions) {
     if (!options.url) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] url is required, cannot run without it"
-      );
+      throw new Error('[ReporterPlaywrightReportsServer] url is required, cannot run without it');
     }
 
     if (!options.reportPath) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it"
-      );
+      throw new Error('[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it');
     }
 
     this.rpOptions = { ...DEFAULT_OPTIONS, ...options };
-    console.debug(
-      `[ReporterPlaywrightReportsServer] running with ${JSON.stringify(
-        options,
-        null,
-        2
-      )}`
-    );
+    console.debug(`[ReporterPlaywrightReportsServer] running with ${JSON.stringify(options, null, 2)}`);
   }
 
   onBegin(config: FullConfig, suite: Suite) {
     this.blobPath = path.join(process.cwd(), this.rpOptions.reportPath);
     this.blobName = path.basename(this.blobPath);
 
-    console.debug(
-      `[ReporterPlaywrightReportsServer] blob file path: ${this.blobPath}`
-    );
+    console.debug(`[ReporterPlaywrightReportsServer] blob file path: ${this.blobPath}`);
   }
 
   async onEnd(result: FullResult) {
     if (this.blobPath === undefined) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] Blob file path is absent. Results cannot be uploaded"
-      );
+      throw new Error('[ReporterPlaywrightReportsServer] Blob file path is absent. Results cannot be uploaded');
     }
     let buffer: Buffer;
     try {
       buffer = await fs.readFile(this.blobPath);
     } catch (err) {
+      console.error(err);
       throw new Error(
-        "[ReporterPlaywrightReportsServer] Blob file not found or cannot be loaded. Results cannot be uploaded",
-        { cause: err }
+        '[ReporterPlaywrightReportsServer] Blob file not found or cannot be loaded. Results cannot be uploaded',
       );
     }
 
@@ -98,31 +79,25 @@ class ReporterPlaywrightReportsServer implements Reporter {
           : {},
     });
 
-    const resultDetails =
-      this.rpOptions.resultDetails === undefined
-        ? {}
-        : this.rpOptions.resultDetails;
+    const resultDetails = this.rpOptions.resultDetails === undefined ? {} : this.rpOptions.resultDetails;
 
     let resultData: any;
-    const url = this.rpOptions.url.endsWith("/") ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
+    const url = this.rpOptions.url.endsWith('/') ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     if (this.rpOptions.dryRun === false) {
       const resp = await ctx.put(`${url}/api/result/upload`, {
-      multipart: {
-        file: {
-        name: this.blobName ?? "blob.zip",
-        mimeType: "application/zip",
-        buffer: buffer,
+        multipart: {
+          file: {
+            name: this.blobName ?? 'blob.zip',
+            mimeType: 'application/zip',
+            buffer: buffer,
+          },
+          ...resultDetails,
         },
-        ...resultDetails,
-      },
       });
       resultData = (await resp.json()).data;
     } else {
-      resultData = { resultID: "123" };
-      console.debug(
-      "[ReporterPlaywrightReportsServer] result uploaded: ",
-      resultData
-      );
+      resultData = { resultID: '123' };
+      console.debug('[ReporterPlaywrightReportsServer] result uploaded: ', resultData);
     }
 
     if (this.rpOptions.triggerReportGeneration === true) {
@@ -137,12 +112,12 @@ class ReporterPlaywrightReportsServer implements Reporter {
         ).json();
       } else {
         report = {
-          reportUrl: "/data/report/123/index.html",
+          reportUrl: '/data/report/123/index.html',
         };
       }
 
       console.log(
-        `[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${this.rpOptions.url}${report.reportUrl}`
+        `[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${this.rpOptions.url}${report.reportUrl}`,
       );
     }
   }
