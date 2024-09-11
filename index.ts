@@ -38,15 +38,11 @@ class ReporterPlaywrightReportsServer implements Reporter {
 
   constructor(options: ReporterOptions) {
     if (!options.url) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] url is required, cannot run without it"
-      );
+      throw new Error('[ReporterPlaywrightReportsServer] url is required, cannot run without it');
     }
 
     if (!options.reportPath) {
-      throw new Error(
-        "[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it"
-      );
+      throw new Error('[ReporterPlaywrightReportsServer] reportPath is required, cannot run without it');
     }
 
     this.rpOptions = { ...DEFAULT_OPTIONS, ...options };
