@@ -3,6 +3,9 @@
   "version": "1.0.2",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "dist/index.js",
+  "repository": {
+    "url": "https://github.com/CyborgTests/reporter-playwright-reports-server"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
