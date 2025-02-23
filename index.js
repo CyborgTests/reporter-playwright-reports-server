@@ -80,6 +80,7 @@ class ReporterPlaywrightReportsServer {
                 report = await (await ctx.post(`${this.rpOptions.url}/api/report/generate`, {
                     data: {
                         resultsIds: [resultData.resultID],
+                        ...resultDetails,
                     },
                 })).json();
             }
