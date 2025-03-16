@@ -1,6 +1,6 @@
 {
   "name": "@cyborgtests/reporter-playwright-reports-server",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "index.js",
   "repository": {
@@ -45,5 +45,6 @@
     "playwright",
     "reporter",
     "playwright-reports-server"
-  ]
+  ],
+  "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c"
 }

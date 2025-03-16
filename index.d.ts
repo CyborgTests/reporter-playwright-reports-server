@@ -12,11 +12,11 @@ type ReporterOptions = {
 };
 declare class ReporterPlaywrightReportsServer implements Reporter {
     rpOptions: ReporterOptions;
-    pwConfig: FullConfig | undefined;
+    pwConfig: FullConfig;
     blobPath: string | undefined;
     blobName: string | undefined;
     constructor(options: ReporterOptions);
-    onBegin(): void;
+    onBegin(config: FullConfig): void;
     onEnd(): Promise<void>;
 }
 export default ReporterPlaywrightReportsServer;

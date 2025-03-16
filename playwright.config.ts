@@ -18,9 +18,9 @@ export default defineConfig({
         resultDetails: {
           key1: '1',
           key2: '2',
+          testRun: 'test-run-1',
         },
         triggerReportGeneration: true,
-        dryRun: true,
       },
     ],
   ],
