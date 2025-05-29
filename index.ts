@@ -124,6 +124,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
           await ctx.post(`${this.rpOptions.url}/api/report/generate`, {
             data: {
               resultsIds: [resultResponse.resultID],
+              ...resultDetails,
             },
           })
         ).json();
