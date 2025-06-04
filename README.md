@@ -24,6 +24,7 @@ Then, in playwright.config file:
         url: 'https://your server instance.com',
         // Set token if your server instance has authentication enabled
         token: '1234',
+        // Relative path to your blob. Required.
         reportPath: 'test-results/blob.zip',
         // Any custom metadata to attach to this blob (strings)
         resultDetails: {
@@ -31,8 +32,8 @@ Then, in playwright.config file:
           foo: 'bar',
           bar: 'baz'
         },
-        // Automatically trigger HTML report generation, shards supported
-        triggerReportGeneration: true
+        // Automatically trigger HTML report generation after tests finish. Shards supported. false by default
+        triggerReportGeneration: false
       },
     ],
   ],
