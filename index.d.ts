@@ -1,5 +1,4 @@
 import type { FullConfig, Reporter } from '@playwright/test/reporter';
-
 export type ReporterOptions = {
   enabled?: boolean;
   url: string;
@@ -9,7 +8,6 @@ export type ReporterOptions = {
     [key: string]: string;
   };
   triggerReportGeneration?: boolean;
-  dryRun?: boolean;
 };
 declare class ReporterPlaywrightReportsServer implements Reporter {
   rpOptions: ReporterOptions;
