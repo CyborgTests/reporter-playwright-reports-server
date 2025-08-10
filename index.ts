@@ -98,13 +98,17 @@ class ReporterPlaywrightReportsServer implements Reporter {
 
     // Replace undefined values with empty strings
     const clearedResDetails = Object.fromEntries(
-      Object.entries(this.rpOptions.resultDetails).map(([key, value]) => [key, value === undefined ? '' : value]),
+      Object.entries(this.rpOptions.resultDetails).map(([key, value]) => [key, value ?? '']),
     );
 
     const url = this.rpOptions.url.endsWith('/') ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     const shard = this.pwConfig.shard;
 
-    const resp = await ctx.put(`${url}/api/result/upload`, {
+    const uploadUrl = new URL('/api/result/upload', url);
+    // set specific parameter with file content length, to handle s3 presigned url upload
+    uploadUrl.searchParams.set('fileContentLength', buffer?.length?.toString() ?? '0');
+
+    const resp = await ctx.put(uploadUrl.href, {
       multipart: {
         file: {
           name: this.blobName ?? 'blob.zip',
