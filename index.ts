@@ -101,6 +101,8 @@ class ReporterPlaywrightReportsServer implements Reporter {
       Object.entries(this.rpOptions.resultDetails).map(([key, value]) => [key, value ?? '']),
     );
 
+    const version = this.pwConfig.version ?? '';
+
     const url = this.rpOptions.url.endsWith('/') ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
     const shard = this.pwConfig.shard;
 
@@ -119,6 +121,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
         ...clearedResDetails,
         ...(shard ? { shardCurrent: shard.current, shardTotal: shard.total } : {}),
         triggerReportGeneration: this.rpOptions.triggerReportGeneration,
+        playwrightVersion: version,
       },
     });
 
@@ -145,6 +148,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
             data: {
               resultsIds: [resultResponse.resultID],
               ...clearedResDetails,
+              playwrightVersion: version,
             },
           })
         ).json();
