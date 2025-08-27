@@ -3,6 +3,7 @@ import path from 'path';
 import { request } from '@playwright/test';
 import type { FullConfig, Reporter /*, FullResult, Suite */ } from '@playwright/test/reporter';
 import { type UUID } from 'crypto';
+import { execSync } from 'child_process';
 
 // reporter: [
 //   ['reporter-playwright-reports-server', {
@@ -38,6 +39,26 @@ type ReporterOptions = {
     [key: string]: string;
   };
   triggerReportGeneration: boolean;
+};
+
+// Function to get user information
+const getUsername = () => {
+  let username = process.env.QA_USERNAME || '';
+  
+  if (username) {
+    return username;
+  }
+  
+  try {
+    const gitUser = execSync('git config user.name', { encoding: 'utf8' }).trim();
+    if (gitUser) {
+      return gitUser;
+    }
+  } catch (error) {
+    // Git config not available, continue with system user
+  }
+  
+  return '';
 };
 
 const DEFAULT_OPTIONS: Omit<ReporterOptions, 'url' | 'reportPath'> = {
@@ -101,6 +122,12 @@ class ReporterPlaywrightReportsServer implements Reporter {
       Object.entries(this.rpOptions.resultDetails).map(([key, value]) => [key, value ?? '']),
     );
 
+    // Add username to result details if not already provided
+    if (!clearedResDetails.username) {
+      const username = getUsername();
+      if (username) clearedResDetails.username = username;
+    }
+
     const version = this.pwConfig.version ?? '';
 
     const url = this.rpOptions.url.endsWith('/') ? this.rpOptions.url.slice(0, -1) : this.rpOptions.url;
@@ -131,6 +158,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       size: string;
       sizeBytes: number;
       generatedReport: { reportId: string; reportUrl: string; metadata: { title: string; project: string } } | null;
+      username?: string;
     } = (await resp.json()).data;
 
     console.debug('[ReporterPlaywrightReportsServer] blob result uploaded: ', resultResponse);
