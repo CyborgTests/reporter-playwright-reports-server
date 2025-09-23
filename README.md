@@ -24,6 +24,8 @@ Then, in playwright.config file:
         url: 'https://your server instance.com',
         // Set token if your server instance has authentication enabled
         token: '1234',
+        // Timeout for reporter HTTP requests to finish, default 60000ms, increase if you have slow server and big requests.
+        requestTimeout: 60000,
         // Relative path to your blob. Required.
         reportPath: 'test-results/blob.zip',
         // Any custom metadata to attach to this blob (strings)

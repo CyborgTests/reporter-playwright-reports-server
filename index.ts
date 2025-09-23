@@ -21,6 +21,7 @@ export type PublicReporterOptions = {
   url: string;
   reportPath: string;
   token?: string;
+  requestTimeout?: number;
   resultDetails?: {
     [key: string]: string;
   };
@@ -35,6 +36,7 @@ type ReporterOptions = {
   url: string;
   reportPath: string;
   token?: string;
+  requestTimeout?: number;
   resultDetails: {
     [key: string]: string;
   };
@@ -65,6 +67,7 @@ const DEFAULT_OPTIONS: Omit<ReporterOptions, 'url' | 'reportPath'> = {
   enabled: true,
   resultDetails: {},
   triggerReportGeneration: true,
+  requestTimeout: 60000,
 };
 
 class ReporterPlaywrightReportsServer implements Reporter {
@@ -109,6 +112,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       );
     }
     const ctx = await request.newContext({
+      timeout: this.rpOptions.blobUploadTimeout,
       extraHTTPHeaders:
         this.rpOptions.token !== undefined
           ? {
