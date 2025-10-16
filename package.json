@@ -1,6 +1,6 @@
 {
   "name": "@cyborgtests/reporter-playwright-reports-server",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "index.js",
   "repository": {
@@ -9,6 +9,7 @@
   "types": "index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "playwright test",
     "format:check": "prettier --ignore-path .gitignore --list-different '**/**/*.{ts,json,md}'",
     "lint:check": "eslint",
@@ -20,6 +21,7 @@
   "files": [
     "index.js",
     "index.d.ts",
+    "index.js.map",
     "readme.md",
     "LICENSE",
     "package.json",

@@ -3,7 +3,8 @@
     "target": "es2020",
     "module": "NodeNext",
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "sourceMap": true
   },
   "exclude": ["node_modules", "tests", "playwright.config.ts"]
 }

@@ -112,7 +112,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       );
     }
     const ctx = await request.newContext({
-      timeout: this.rpOptions.blobUploadTimeout,
+      timeout: this.rpOptions.requestTimeout,
       extraHTTPHeaders:
         this.rpOptions.token !== undefined
           ? {
