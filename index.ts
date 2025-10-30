@@ -214,7 +214,6 @@ class ReporterPlaywrightReportsServer implements Reporter {
     const totalTimeout = this.rpOptions.blobUploadTimeout ?? this.rpOptions.requestTimeout ?? 10 * 60_000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), totalTimeout);
-
     let resultResponse: {
       resultID: UUID;
       createdAt: string;
