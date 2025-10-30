@@ -46,11 +46,11 @@ type ReporterOptions = {
 // Function to get user information
 const getUsername = () => {
   let username = process.env.QA_USERNAME || '';
-  
+
   if (username) {
     return username;
   }
-  
+
   try {
     const gitUser = execSync('git config user.name', { encoding: 'utf8' }).trim();
     if (gitUser) {
@@ -59,7 +59,7 @@ const getUsername = () => {
   } catch (error) {
     // Git config not available, continue with system user
   }
-  
+
   return '';
 };
 
@@ -104,6 +104,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
     }
     let buffer: Buffer;
     try {
+      // TODO: Rewrite to use ReadStream
       buffer = await fs.readFile(this.blobPath);
     } catch (err) {
       console.error(err);
@@ -141,7 +142,9 @@ class ReporterPlaywrightReportsServer implements Reporter {
     // set specific parameter with file content length, to handle s3 presigned url upload
     uploadUrl.searchParams.set('fileContentLength', buffer?.length?.toString() ?? '0');
 
+    // Uploading result to the server
     const resp = await ctx.put(uploadUrl.href, {
+      failOnStatusCode: true,
       multipart: {
         file: {
           name: this.blobName ?? 'blob.zip',
@@ -156,14 +159,22 @@ class ReporterPlaywrightReportsServer implements Reporter {
       },
     });
 
-    const resultResponse: {
+    let resultResponse: {
       resultID: UUID;
       createdAt: string;
       size: string;
       sizeBytes: number;
       generatedReport: { reportId: string; reportUrl: string; metadata: { title: string; project: string } } | null;
       username?: string;
-    } = (await resp.json()).data;
+    };
+    try {
+      resultResponse = (await resp.json()).data;
+    } catch (error) {
+      console.error(
+        `[ReporterPlaywrightReportsServer] Failed to parse result response: ${await resp.text()} ${resp.statusText()} ${resp.status()}`,
+      );
+      throw error;
+    }
 
     console.debug('[ReporterPlaywrightReportsServer] blob result uploaded: ', resultResponse);
 
@@ -177,6 +188,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       } else {
         report = await (
           await ctx.post(`${this.rpOptions.url}/api/report/generate`, {
+            failOnStatusCode: true,
             data: {
               resultsIds: [resultResponse.resultID],
               ...clearedResDetails,
