@@ -1,3 +1,6 @@
+# compiled files
+dist/
+
 # Logs
 logs
 *.log

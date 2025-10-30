@@ -2,7 +2,7 @@
   "name": "@cyborgtests/reporter-playwright-reports-server",
   "version": "2.5.0",
   "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "url": "git+https://github.com/CyborgTests/reporter-playwright-reports-server.git"
   },
@@ -19,9 +19,9 @@
   "author": "Oleksandr Khotemskyi <xotabu4@gmail.com>",
   "license": "MIT",
   "files": [
-    "index.js",
-    "index.d.ts",
-    "index.js.map",
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/index.js.map",
     "readme.md",
     "LICENSE",
     "package.json",
@@ -47,6 +47,5 @@
     "playwright",
     "reporter",
     "playwright-reports-server"
-  ],
-  "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c"
+  ]
 }
