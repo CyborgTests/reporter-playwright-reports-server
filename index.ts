@@ -58,7 +58,9 @@ const getUsername = (): string => {
   try {
     const gitUser = execSync('git config user.name', { encoding: 'utf8' }).trim();
     if (gitUser) return gitUser;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return '';
 };
 
@@ -67,10 +69,7 @@ function makeBoundary() {
 }
 
 function fieldPart(boundary: string, name: string, value: string): Buffer {
-  const head =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="${name}"\r\n\r\n` +
-    `${value}\r\n`;
+  const head = `--${boundary}\r\n` + `Content-Disposition: form-data; name="${name}"\r\n\r\n` + `${value}\r\n`;
   return Buffer.from(head, 'utf8');
 }
 
@@ -104,25 +103,28 @@ async function* multipartStream(opts: {
   yield fileHead(boundary, 'file', fileName, fileType) as Uint8Array;
 
   const rs = fs.createReadStream(filePath, { highWaterMark: 512 * 1024 }); // 512KB
-  let sent = 0, lastPct = -5, lastTick = Date.now();
+  let sent = 0,
+    lastPct = -5,
+    lastTick = Date.now();
 
   for await (const chunk of rs) {
     if (logProgress && totalBytes > 0) {
       sent += (chunk as Buffer).length;
       const now = Date.now();
       const pct = Math.min(100, Math.floor((sent / totalBytes) * 100));
-      if ((now - lastTick >= 500) && pct >= lastPct + 2) {
-        const line = `Upload: ${pct}% (${(sent/1024/1024).toFixed(1)}/${(totalBytes/1024/1024).toFixed(1)} MB)`;
+      if (now - lastTick >= 500 && pct >= lastPct + 2) {
+        const line = `Upload: ${pct}% (${(sent / 1024 / 1024).toFixed(1)}/${(totalBytes / 1024 / 1024).toFixed(1)} MB)`;
         if (process.stdout.isTTY) process.stdout.write(`\r${line}   `);
         else console.log(line);
-        lastPct = pct; lastTick = now;
+        lastPct = pct;
+        lastTick = now;
       }
     }
     yield chunk as Uint8Array;
   }
 
   if (logProgress && totalBytes > 0) {
-    const line = `Upload: 100% (${(totalBytes/1024/1024).toFixed(1)} MB)`;
+    const line = `Upload: 100% (${(totalBytes / 1024 / 1024).toFixed(1)} MB)`;
     if (process.stdout.isTTY) process.stdout.write(`\r${line}\n`);
     else console.log(line);
   }
@@ -177,7 +179,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
     const zipSize = stat.size;
 
     const details: Record<string, string> = Object.fromEntries(
-      Object.entries(this.rpOptions.resultDetails).map(([k, v]) => [k, v ?? ''])
+      Object.entries(this.rpOptions.resultDetails).map(([k, v]) => [k, v ?? '']),
     );
     if (!details.username) {
       const u = getUsername();
@@ -240,19 +242,24 @@ class ReporterPlaywrightReportsServer implements Reporter {
         throw new Error(`[Reporter] Upload failed ${resp.status}: ${text.slice(0, 500)}`);
       }
 
-      const json = await resp.json() as { data: typeof resultResponse };
+      const json = (await resp.json()) as { data: typeof resultResponse };
       resultResponse = json.data;
 
       console.debug('[ReporterPlaywrightReportsServer] blob result uploaded:1', resultResponse);
 
       if (resultResponse.generatedReport?.reportUrl) {
-        console.log(`[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${baseUrl}${resultResponse.generatedReport.reportUrl}`);
+        console.log(
+          `[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${baseUrl}${resultResponse.generatedReport.reportUrl}`,
+        );
       }
 
       if (this.rpOptions.triggerReportGeneration && !this.pwConfig.shard) {
         const genResp = await fetch(`${baseUrl}/api/report/generate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(this.rpOptions.token ? { Authorization: this.rpOptions.token } : {}) },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.rpOptions.token ? { Authorization: this.rpOptions.token } : {}),
+          },
           body: JSON.stringify({
             resultsIds: [resultResponse.resultID],
             ...details,
@@ -264,12 +271,13 @@ class ReporterPlaywrightReportsServer implements Reporter {
           const t = await genResp.text().catch(() => '');
           throw new Error(`[Reporter] Report generation failed ${genResp.status}: ${t.slice(0, 500)}`);
         }
-        const report = await genResp.json() as { reportUrl?: string };
+        const report = (await genResp.json()) as { reportUrl?: string };
         if (report?.reportUrl) {
-          console.log(`[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${baseUrl}${report.reportUrl}`);
+          console.log(
+            `[ReporterPlaywrightReportsServer] 🎭 HTML Report is available at: ${baseUrl}${report.reportUrl}`,
+          );
         }
       }
-
     } catch (err) {
       clearTimeout(timeoutId);
       throw err;
