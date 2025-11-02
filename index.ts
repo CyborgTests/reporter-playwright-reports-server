@@ -149,7 +149,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
     if (!this.rpOptions.url) {
       throw new Error('[ReporterPlaywrightReportsServer] url is required, cannot run without it');
     }
-    this.blobPath = path.join(process.cwd(), 'blob.zip');
+    this.blobPath = path.join(process.cwd(), this.rpOptions.reportPath);
     this.blobName = path.basename(this.blobPath);
   }
 
@@ -245,7 +245,7 @@ class ReporterPlaywrightReportsServer implements Reporter {
       const json = (await resp.json()) as { data: typeof resultResponse };
       resultResponse = json.data;
 
-      console.debug('[ReporterPlaywrightReportsServer] blob result uploaded:1', resultResponse);
+      console.debug('[ReporterPlaywrightReportsServer] blob result uploaded:', resultResponse);
 
       if (resultResponse.generatedReport?.reportUrl) {
         console.log(
