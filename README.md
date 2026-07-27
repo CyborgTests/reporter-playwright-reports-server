@@ -1,5 +1,32 @@
 # reporter-playwright-reports-server
 
+> ## ⚠️ DEPRECATED
+>
+> This package is deprecated and no longer maintained. **It is compatible only with Playwright Reports Server versions below `6.0.0`.** It stays published so existing setups keep working, but it will not receive updates.
+>
+> **If your server is `6.0.0` or newer, use [`@cyborgtests/reporter`](https://www.npmjs.com/package/@cyborgtests/reporter) instead.** It is developed inside the server repository: https://github.com/CyborgTests/playwright-reports-server/tree/main/packages/reporter
+>
+> | Playwright Reports Server | Reporter package |
+> | --- | --- |
+> | `< 6.0.0` | `@cyborgtests/reporter-playwright-reports-server` (this one, deprecated) |
+> | `>= 6.0.0` | `@cyborgtests/reporter` |
+>
+> ### Migration
+>
+> ```sh
+> npm uninstall @cyborgtests/reporter-playwright-reports-server
+> npm i -D @cyborgtests/reporter
+> ```
+>
+> Then replace the reporter name in `playwright.config`:
+>
+> ```diff
+> - ['@cyborgtests/reporter-playwright-reports-server', { ... }],
+> + ['@cyborgtests/reporter', { ... }],
+> ```
+>
+> Note: `@cyborgtests/reporter` requires `@playwright/test` `^1.59.1`. See its readme for the current options.
+
 Playwright reporter that uploads results to Playwright Reports Server - https://github.com/CyborgTests/playwright-reports-server
 
 ## Install

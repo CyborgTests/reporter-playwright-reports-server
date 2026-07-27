@@ -1,7 +1,7 @@
 {
   "name": "@cyborgtests/reporter-playwright-reports-server",
   "version": "2.6.1",
-  "description": "Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
+  "description": "DEPRECATED - only compatible with Playwright Reports Server < 6.0.0. For 6.0.0+ use @cyborgtests/reporter. Reporter that uploads your blob reports to playwright reports server https://github.com/CyborgTests/playwright-reports-server",
   "main": "dist/index.js",
   "repository": {
     "url": "git+https://github.com/CyborgTests/reporter-playwright-reports-server.git"
